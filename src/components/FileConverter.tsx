@@ -3,6 +3,7 @@ import { Upload, FileType, Download, ArrowRight, Cpu } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import WireframeBackground from "./WireframeBackground";
 
 export const FileConverter = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -45,6 +46,7 @@ export const FileConverter = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background/90">
+      <WireframeBackground />
       <div className="w-full max-w-2xl space-y-8 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl -z-10" />
         
