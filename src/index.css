@@ -37,13 +37,13 @@
 }
 
 .upload-zone {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(14, 165, 233, 0.1));
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(14, 165, 233, 0.03));
   transition: all 0.3s ease;
 }
 
 .upload-zone:hover {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(14, 165, 233, 0.2));
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(14, 165, 233, 0.05));
+  transform: scale(1.01);
 }
 
 .glow {
@@ -61,4 +61,19 @@
                 0 0 20px rgba(139, 92, 246, 0.4),
                 0 0 30px rgba(139, 92, 246, 0.4);
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
 }
