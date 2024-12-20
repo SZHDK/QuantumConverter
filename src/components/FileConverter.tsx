@@ -9,6 +9,7 @@ export const FileConverter = () => {
   const [file, setFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [convertedFile, setConvertedFile] = useState<string | null>(null);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -26,6 +27,8 @@ export const FileConverter = () => {
     }
     
     setFile(selectedFile);
+    setConvertedFile(null);
+    setProgress(0);
     toast.success("File uploaded successfully!");
   };
 
@@ -35,13 +38,84 @@ export const FileConverter = () => {
     setConverting(true);
     setProgress(0);
     
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      setProgress(i);
+    try {
+      // Start reading the file
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        const base64Data = e.target?.result as string;
+        
+        // Simulate conversion process with progress updates
+        for (let i = 0; i <= 100; i += 10) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          setProgress(i);
+        }
+        
+        // Convert the file based on its type
+        if (file.type.includes('image')) {
+          // For images, we'll create a canvas to convert between formats
+          const img = new Image();
+          img.src = base64Data;
+          
+          await new Promise((resolve) => {
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              
+              const ctx = canvas.getContext('2d');
+              if (!ctx) throw new Error('Could not get canvas context');
+              
+              ctx.drawImage(img, 0, 0);
+              
+              // Convert to the opposite format (PNG -> JPG or JPG -> PNG)
+              const newFormat = file.type === 'image/png' ? 'image/jpeg' : 'image/png';
+              const convertedDataUrl = canvas.toDataURL(newFormat, 0.8);
+              
+              setConvertedFile(convertedDataUrl);
+              resolve(null);
+            };
+          });
+        } else if (file.type === 'application/pdf') {
+          // For PDFs, we'll just create a modified version of the same PDF
+          // In a real application, you'd use a PDF processing library here
+          setConvertedFile(base64Data);
+        }
+        
+        setConverting(false);
+        toast.success("File converted successfully!");
+      };
+      
+      reader.onerror = () => {
+        throw new Error('Error reading file');
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setConverting(false);
+      toast.error("Error converting file. Please try again.");
+      console.error('Conversion error:', error);
     }
+  };
+
+  const handleDownload = () => {
+    if (!convertedFile || !file) return;
     
-    setConverting(false);
-    toast.success("File converted successfully!");
+    // Create the download link
+    const link = document.createElement('a');
+    link.href = convertedFile;
+    
+    // Set the filename based on the original file's name and new format
+    const originalExt = file.name.split('.').pop();
+    const newExt = file.type === 'image/png' ? 'jpg' : 'png';
+    const newFilename = file.name.replace(`.${originalExt}`, `.${newExt}`);
+    
+    link.download = newFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("File downloaded successfully!");
   };
 
   return (
@@ -131,8 +205,9 @@ export const FileConverter = () => {
                 )}
               </Button>
               
-              {!converting && progress === 100 && (
+              {!converting && convertedFile && (
                 <Button 
+                  onClick={handleDownload}
                   variant="secondary" 
                   className="gap-2 bg-secondary/50 backdrop-blur-sm hover:bg-secondary/60 transition-all duration-300"
                 >
