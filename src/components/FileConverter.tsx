@@ -3,6 +3,8 @@ import { DropZone } from "./file-converter/DropZone";
 import { ConversionControls } from "./file-converter/ConversionControls";
 import { useFileConversion } from "./file-converter/useFileConversion";
 import WireframeBackground from "./WireframeBackground";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Music } from "lucide-react";
 
 export const FileConverter = () => {
   const {
@@ -22,11 +24,32 @@ export const FileConverter = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl -z-10" />
         
         <FileConverterHeader />
-        
-        <DropZone 
-          file={file}
-          onFileSelect={handleFileSelect}
-        />
+
+        <Tabs defaultValue="general" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="general">General Convert</TabsTrigger>
+            <TabsTrigger value="audio" className="flex items-center gap-2">
+              <Music className="w-4 h-4" />
+              Audio Convert
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="general">
+            <DropZone 
+              file={file}
+              onFileSelect={handleFileSelect}
+              acceptedTypes={['image/jpeg', 'image/png', 'application/pdf']}
+            />
+          </TabsContent>
+          
+          <TabsContent value="audio">
+            <DropZone 
+              file={file}
+              onFileSelect={handleFileSelect}
+              acceptedTypes={['audio/mpeg', 'video/mp4']}
+            />
+          </TabsContent>
+        </Tabs>
 
         <ConversionControls
           file={file}

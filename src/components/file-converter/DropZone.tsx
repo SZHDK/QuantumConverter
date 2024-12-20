@@ -4,9 +4,10 @@ import { toast } from "sonner";
 interface DropZoneProps {
   file: File | null;
   onFileSelect: (file: File) => void;
+  acceptedTypes: string[];
 }
 
-export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
+export const DropZone = ({ file, onFileSelect, acceptedTypes }: DropZoneProps) => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
@@ -16,21 +17,31 @@ export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
   const handleFile = (selectedFile: File) => {
     if (!selectedFile) return;
     
-    const allowedTypes = [
-      'image/jpeg', 
-      'image/png', 
-      'application/pdf',
-      'audio/mpeg',
-      'video/mp4'
-    ];
-    
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Unsupported file type. Please upload JPG, PNG, PDF, MP3, or MP4 files.");
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      toast.error(`Unsupported file type. Please upload ${acceptedTypes.map(type => type.split('/')[1].toUpperCase()).join(', ')} files.`);
       return;
     }
     
     onFileSelect(selectedFile);
     toast.success("File uploaded successfully!");
+  };
+
+  const getAcceptString = () => {
+    return acceptedTypes.map(type => {
+      switch(type) {
+        case 'image/jpeg': return '.jpg,.jpeg';
+        case 'image/png': return '.png';
+        case 'application/pdf': return '.pdf';
+        case 'audio/mpeg': return '.mp3';
+        case 'video/mp4': return '.mp4';
+        default: return '';
+      }
+    }).filter(Boolean).join(',');
+  };
+
+  const getFileTypeDescription = () => {
+    const types = acceptedTypes.map(type => type.split('/')[1].toUpperCase());
+    return types.join(', ');
   };
 
   return (
@@ -47,7 +58,7 @@ export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
         type="file"
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0] as File)}
-        accept=".jpg,.jpeg,.png,.pdf,.mp3,.mp4"
+        accept={getAcceptString()}
       />
       
       <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -69,7 +80,7 @@ export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
             Drop your file here or click to browse
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            Supports JPG, PNG, PDF, MP3, and MP4
+            Supports {getFileTypeDescription()}
           </p>
         </div>
       )}
