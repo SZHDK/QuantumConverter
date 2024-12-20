@@ -1,16 +1,47 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 export const useFileConversion = () => {
   const [file, setFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [convertedFile, setConvertedFile] = useState<string | null>(null);
+  const [ffmpeg] = useState(() => new FFmpeg());
 
   const handleFileSelect = (selectedFile: File) => {
     setFile(selectedFile);
     setConvertedFile(null);
     setProgress(0);
+  };
+
+  const convertMediaFile = async (inputFile: File) => {
+    if (!ffmpeg.loaded) {
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+      });
+    }
+
+    const inputData = await fetchFile(inputFile);
+    const inputFileName = 'input' + (inputFile.type === 'video/mp4' ? '.mp4' : '.mp3');
+    const outputFileName = 'output' + (inputFile.type === 'video/mp4' ? '.mp3' : '.mp4');
+
+    ffmpeg.writeFile(inputFileName, inputData);
+
+    // Convert MP4 to MP3 or vice versa
+    if (inputFile.type === 'video/mp4') {
+      await ffmpeg.exec(['-i', inputFileName, '-vn', '-acodec', 'libmp3lame', outputFileName]);
+    } else {
+      await ffmpeg.exec(['-i', inputFileName, '-c:a', 'aac', outputFileName]);
+    }
+
+    const outputData = await ffmpeg.readFile(outputFileName);
+    const outputBlob = new Blob([outputData], { 
+      type: inputFile.type === 'video/mp4' ? 'audio/mpeg' : 'video/mp4' 
+    });
+    return URL.createObjectURL(outputBlob);
   };
 
   const convertFile = async () => {
@@ -20,17 +51,17 @@ export const useFileConversion = () => {
     setProgress(0);
     
     try {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        const base64Data = e.target?.result as string;
+      if (file.type.includes('image')) {
+        const reader = new FileReader();
         
-        for (let i = 0; i <= 100; i += 10) {
-          await new Promise(resolve => setTimeout(resolve, 200));
-          setProgress(i);
-        }
-        
-        if (file.type.includes('image')) {
+        reader.onload = async (e) => {
+          const base64Data = e.target?.result as string;
+          
+          for (let i = 0; i <= 100; i += 10) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            setProgress(i);
+          }
+          
           const img = new Image();
           img.src = base64Data;
           
@@ -52,19 +83,34 @@ export const useFileConversion = () => {
               resolve(null);
             };
           });
-        } else if (file.type === 'application/pdf') {
-          setConvertedFile(base64Data);
+        };
+        
+        reader.onerror = () => {
+          throw new Error('Error reading file');
+        };
+        
+        reader.readAsDataURL(file);
+      } else if (file.type === 'audio/mpeg' || file.type === 'video/mp4') {
+        // Handle audio/video conversion
+        for (let i = 0; i <= 90; i += 10) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          setProgress(i);
         }
         
-        setConverting(false);
-        toast.success("File converted successfully!");
-      };
+        const convertedUrl = await convertMediaFile(file);
+        setConvertedFile(convertedUrl);
+        setProgress(100);
+      } else if (file.type === 'application/pdf') {
+        // Handle PDF (keeping existing functionality)
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setConvertedFile(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
       
-      reader.onerror = () => {
-        throw new Error('Error reading file');
-      };
-      
-      reader.readAsDataURL(file);
+      setConverting(false);
+      toast.success("File converted successfully!");
     } catch (error) {
       setConverting(false);
       toast.error("Error converting file. Please try again.");
@@ -79,7 +125,13 @@ export const useFileConversion = () => {
     link.href = convertedFile;
     
     const originalExt = file.name.split('.').pop();
-    const newExt = file.type === 'image/png' ? 'jpg' : 'png';
+    let newExt = originalExt;
+    
+    if (file.type === 'image/png') newExt = 'jpg';
+    else if (file.type === 'image/jpeg') newExt = 'png';
+    else if (file.type === 'video/mp4') newExt = 'mp3';
+    else if (file.type === 'audio/mpeg') newExt = 'mp4';
+    
     const newFilename = file.name.replace(`.${originalExt}`, `.${newExt}`);
     
     link.download = newFilename;

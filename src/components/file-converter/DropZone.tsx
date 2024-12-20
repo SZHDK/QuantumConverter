@@ -16,9 +16,16 @@ export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
   const handleFile = (selectedFile: File) => {
     if (!selectedFile) return;
     
-    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const allowedTypes = [
+      'image/jpeg', 
+      'image/png', 
+      'application/pdf',
+      'audio/mpeg',
+      'video/mp4'
+    ];
+    
     if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Unsupported file type. Please upload JPG, PNG or PDF files.");
+      toast.error("Unsupported file type. Please upload JPG, PNG, PDF, MP3, or MP4 files.");
       return;
     }
     
@@ -40,7 +47,7 @@ export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
         type="file"
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0] as File)}
-        accept=".jpg,.jpeg,.png,.pdf"
+        accept=".jpg,.jpeg,.png,.pdf,.mp3,.mp4"
       />
       
       <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -62,7 +69,7 @@ export const DropZone = ({ file, onFileSelect }: DropZoneProps) => {
             Drop your file here or click to browse
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            Supports JPG, PNG and PDF
+            Supports JPG, PNG, PDF, MP3, and MP4
           </p>
         </div>
       )}
