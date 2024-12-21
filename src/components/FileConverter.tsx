@@ -29,14 +29,14 @@ export const FileConverter = () => {
           <TabsList className="grid w-full grid-cols-2 p-1 bg-background/20 backdrop-blur-sm border border-primary/20 rounded-xl">
             <TabsTrigger 
               value="general" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300 hover:bg-primary/10 rounded-lg"
+              className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-500 ease-in-out hover:bg-primary/10 rounded-lg transform hover:scale-[1.02]"
             >
               <CircuitBoard className="w-4 h-4" />
               General Convert
             </TabsTrigger>
             <TabsTrigger 
               value="audio" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300 hover:bg-primary/10 rounded-lg"
+              className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-500 ease-in-out hover:bg-primary/10 rounded-lg transform hover:scale-[1.02]"
             >
               <Music className="w-4 h-4" />
               Audio Convert
