@@ -17,31 +17,37 @@ export const useFileConversion = () => {
   };
 
   const convertMediaFile = async (inputFile: File) => {
-    if (!ffmpeg.loaded) {
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+    try {
+      if (!ffmpeg.loaded) {
+        toast.info("Loading audio converter...");
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+        });
+      }
+
+      const inputData = await fetchFile(inputFile);
+      const inputFileName = 'input' + (inputFile.type === 'video/mp4' ? '.mp4' : '.mp3');
+      const outputFileName = 'output' + (inputFile.type === 'video/mp4' ? '.mp3' : '.mp4');
+
+      await ffmpeg.writeFile(inputFileName, inputData);
+
+      // Extract audio from MP4 and convert to MP3
+      if (inputFile.type === 'video/mp4') {
+        await ffmpeg.exec(['-i', inputFileName, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputFileName]);
+      } else {
+        await ffmpeg.exec(['-i', inputFileName, '-c:a', 'aac', outputFileName]);
+      }
+
+      const outputData = await ffmpeg.readFile(outputFileName);
+      const outputBlob = new Blob([outputData], { 
+        type: inputFile.type === 'video/mp4' ? 'audio/mpeg' : 'video/mp4' 
       });
+      return URL.createObjectURL(outputBlob);
+    } catch (error) {
+      console.error('FFmpeg error:', error);
+      throw new Error('Failed to convert audio file');
     }
-
-    const inputData = await fetchFile(inputFile);
-    const inputFileName = 'input' + (inputFile.type === 'video/mp4' ? '.mp4' : '.mp3');
-    const outputFileName = 'output' + (inputFile.type === 'video/mp4' ? '.mp3' : '.mp4');
-
-    ffmpeg.writeFile(inputFileName, inputData);
-
-    // Convert MP4 to MP3 or vice versa
-    if (inputFile.type === 'video/mp4') {
-      await ffmpeg.exec(['-i', inputFileName, '-vn', '-acodec', 'libmp3lame', outputFileName]);
-    } else {
-      await ffmpeg.exec(['-i', inputFileName, '-c:a', 'aac', outputFileName]);
-    }
-
-    const outputData = await ffmpeg.readFile(outputFileName);
-    const outputBlob = new Blob([outputData], { 
-      type: inputFile.type === 'video/mp4' ? 'audio/mpeg' : 'video/mp4' 
-    });
-    return URL.createObjectURL(outputBlob);
   };
 
   const convertFile = async () => {
@@ -91,7 +97,8 @@ export const useFileConversion = () => {
         
         reader.readAsDataURL(file);
       } else if (file.type === 'audio/mpeg' || file.type === 'video/mp4') {
-        // Handle audio/video conversion
+        toast.info("Starting audio conversion...");
+        
         for (let i = 0; i <= 90; i += 10) {
           await new Promise(resolve => setTimeout(resolve, 200));
           setProgress(i);
