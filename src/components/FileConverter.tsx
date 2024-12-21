@@ -26,17 +26,17 @@ export const FileConverter = () => {
         <FileConverterHeader />
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 p-1 bg-gradient-to-r from-background/30 via-background/20 to-background/30 backdrop-blur-sm border border-primary/20 rounded-xl overflow-hidden">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger 
               value="general" 
-              className="relative flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-500 ease-in-out hover:bg-primary/10 rounded-lg transform hover:scale-[1.02] after:absolute after:right-0 after:top-1/4 after:h-1/2 after:w-[1px] after:bg-primary/10"
+              className="flex items-center gap-2"
             >
               <CircuitBoard className="w-4 h-4" />
               General Convert
             </TabsTrigger>
             <TabsTrigger 
               value="audio" 
-              className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-500 ease-in-out hover:bg-primary/10 rounded-lg transform hover:scale-[1.02]"
+              className="flex items-center gap-2"
             >
               <Music className="w-4 h-4" />
               Audio Convert
