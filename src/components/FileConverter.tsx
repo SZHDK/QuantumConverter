@@ -26,22 +26,22 @@ export const FileConverter = () => {
         <FileConverterHeader />
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-background/20 backdrop-blur-xl p-1 rounded-xl border border-primary/20">
+          <TabsList className="grid w-full grid-cols-2 bg-background/20 backdrop-blur-xl p-1 rounded-2xl border border-primary/20">
             <TabsTrigger 
               value="general" 
-              className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 hover:bg-primary/10 rounded-lg"
+              className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 hover:bg-primary/10 rounded-xl px-4 py-2"
             >
               <CircuitBoard className="w-4 h-4" />
               <span className="relative z-10">General Convert</span>
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
             </TabsTrigger>
             <TabsTrigger 
               value="audio" 
-              className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 hover:bg-primary/10 rounded-lg"
+              className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 hover:bg-primary/10 rounded-xl px-4 py-2"
             >
               <Music className="w-4 h-4" />
               <span className="relative z-10">Audio Convert</span>
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
             </TabsTrigger>
           </TabsList>
           
