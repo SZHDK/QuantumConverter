@@ -26,7 +26,7 @@ export const FileConverter = () => {
         <FileConverterHeader />
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-background/20 backdrop-blur-xl p-1 rounded-2xl border border-primary/20">
+          <TabsList className="grid w-full grid-cols-2 bg-background/20 backdrop-blur-xl p-1 rounded-2xl">
             <TabsTrigger 
               value="general" 
               className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-blue-500/20 data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 hover:bg-primary/10 rounded-xl px-4 py-2"
