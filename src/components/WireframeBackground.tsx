@@ -25,21 +25,21 @@ const WireframeBackground = () => {
     const createGradient = (ctx: CanvasRenderingContext2D, hue: number, x: number, y: number) => {
       const gradient = ctx.createRadialGradient(
         x, y, 0,
-        x, y, Math.max(canvas.width, canvas.height)
+        x, y, Math.max(canvas.width, canvas.height) * 0.7 // Reduced radius for more concentrated effect
       );
       
-      gradient.addColorStop(0, `hsla(${hue}, 70%, 50%, 0.2)`);
-      gradient.addColorStop(0.5, `hsla(${(hue + 60) % 360}, 70%, 50%, 0.1)`);
-      gradient.addColorStop(1, `hsla(${(hue + 120) % 360}, 70%, 50%, 0)`);
+      gradient.addColorStop(0, `hsla(${hue}, 70%, 50%, 0.4)`); // Increased opacity
+      gradient.addColorStop(0.5, `hsla(${(hue + 60) % 360}, 70%, 50%, 0.2)`); // Increased opacity
+      gradient.addColorStop(1, `hsla(${(hue + 120) % 360}, 70%, 50%, 0.1)`); // Added slight opacity at the edge
       
       return gradient;
     };
 
     const drawGrid = (ctx: CanvasRenderingContext2D, offsetX: number, offsetY: number) => {
-      const gridSize = 50;
-      const lineWidth = 0.5;
+      const gridSize = 40; // Slightly smaller grid
+      const lineWidth = 1; // Thicker lines
       
-      ctx.strokeStyle = "rgba(139, 92, 246, 0.1)";
+      ctx.strokeStyle = "rgba(139, 92, 246, 0.2)"; // More visible grid lines
       ctx.lineWidth = lineWidth;
 
       // Calculate grid offset based on mouse position
@@ -68,12 +68,12 @@ const WireframeBackground = () => {
     const animate = () => {
       if (!ctx || !canvas) return;
 
-      // Smooth mouse following
-      targetX += (mouseX - targetX) * 0.1;
-      targetY += (mouseY - targetY) * 0.1;
+      // Smooth mouse following with faster response
+      targetX += (mouseX - targetX) * 0.15; // Increased speed
+      targetY += (mouseY - targetY) * 0.15; // Increased speed
 
-      // Clear canvas with slight fade effect
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      // Clear canvas with less fade for more persistence
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; // Reduced fade for more visible trails
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Create and apply gradient based on mouse position
@@ -82,10 +82,10 @@ const WireframeBackground = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw reactive grid
-      drawGrid(ctx, targetX * 0.1, targetY * 0.1);
+      drawGrid(ctx, targetX * 0.15, targetY * 0.15); // Increased movement multiplier
 
       // Update hue for color cycling
-      hue = (hue + 0.2) % 360;
+      hue = (hue + 0.5) % 360; // Faster color cycling
 
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -120,7 +120,7 @@ const WireframeBackground = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none opacity-50"
+      className="fixed inset-0 pointer-events-none"
       style={{ zIndex: -1 }}
     />
   );
