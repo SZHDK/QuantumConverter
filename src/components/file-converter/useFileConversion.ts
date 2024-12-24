@@ -20,9 +20,11 @@ export const useFileConversion = () => {
     try {
       if (!ffmpeg.loaded) {
         toast.info("Loading audio converter...");
+        // Load FFmpeg with the correct paths
         await ffmpeg.load({
-          coreURL: await toBlobURL(`/ffmpeg-core.js`, 'text/javascript'),
-          wasmURL: await toBlobURL(`/ffmpeg-core.wasm`, 'application/wasm'),
+          coreURL: await toBlobURL('/ffmpeg-core.js', 'text/javascript'),
+          wasmURL: await toBlobURL('/ffmpeg-core.wasm', 'application/wasm'),
+          workerURL: await toBlobURL('/ffmpeg-worker.js', 'text/javascript'),
         });
       }
 
@@ -32,17 +34,37 @@ export const useFileConversion = () => {
 
       await ffmpeg.writeFile(inputFileName, inputData);
 
+      ffmpeg.on('progress', ({ progress }) => {
+        setProgress(Math.round(progress * 100));
+      });
+
       // Extract audio from MP4 and convert to MP3
       if (inputFile.type === 'video/mp4') {
-        await ffmpeg.exec(['-i', inputFileName, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputFileName]);
-      } else {
-        await ffmpeg.exec(['-i', inputFileName, '-c:a', 'aac', outputFileName]);
+        await ffmpeg.exec([
+          '-i', inputFileName,
+          '-vn',  // No video
+          '-acodec', 'libmp3lame',
+          '-q:a', '2',
+          outputFileName
+        ]);
+      } 
+      // Convert MP3 to MP4 (with a black video stream)
+      else if (inputFile.type === 'audio/mpeg') {
+        await ffmpeg.exec([
+          '-i', inputFileName,
+          '-f', 'lavfi',
+          '-i', 'color=c=black:s=1280x720',
+          '-shortest',
+          '-acodec', 'copy',
+          outputFileName
+        ]);
       }
 
       const outputData = await ffmpeg.readFile(outputFileName);
       const outputBlob = new Blob([outputData], { 
         type: inputFile.type === 'video/mp4' ? 'audio/mpeg' : 'video/mp4' 
       });
+      
       return URL.createObjectURL(outputBlob);
     } catch (error) {
       console.error('FFmpeg error:', error);
@@ -99,14 +121,10 @@ export const useFileConversion = () => {
       } else if (file.type === 'audio/mpeg' || file.type === 'video/mp4') {
         toast.info("Starting audio conversion...");
         
-        for (let i = 0; i <= 90; i += 10) {
-          await new Promise(resolve => setTimeout(resolve, 200));
-          setProgress(i);
-        }
-        
         const convertedUrl = await convertMediaFile(file);
         setConvertedFile(convertedUrl);
         setProgress(100);
+        
       } else if (file.type === 'application/pdf') {
         // Handle PDF (keeping existing functionality)
         const reader = new FileReader();
