@@ -67,9 +67,16 @@ export const convertMediaFile = async (
     console.log('Conversion completed successfully');
 
     const outputData = await ffmpeg.readFile(outputFileName);
-    console.log('Output file read successfully', { outputSize: outputData.byteLength });
+    console.log('Output file read successfully', { 
+      outputSize: outputData instanceof Uint8Array ? outputData.byteLength : 'unknown' 
+    });
     
-    const outputBlob = new Blob([outputData], { 
+    // Ensure outputData is treated as Uint8Array
+    const outputArray = outputData instanceof Uint8Array ? 
+      outputData : 
+      new Uint8Array(Buffer.from(outputData as string));
+
+    const outputBlob = new Blob([outputArray], { 
       type: inputFile.type === 'video/mp4' ? 'audio/mpeg' : 'video/mp4' 
     });
     
